@@ -5,3 +5,4 @@ dist/
 target/
 build/
 **/firebase-service-account.json
+.idea/
