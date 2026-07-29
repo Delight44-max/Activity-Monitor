@@ -1,57 +1,101 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import * as admin from 'firebase-admin';
-import * as path from 'path';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class FirebaseConfig implements OnModuleInit {
-  constructor(private configService: ConfigService) {}
+    constructor(
+        private configService: ConfigService,
+    ) {}
 
-  onModuleInit() {
-    try {
-      const credentialsFile = this.configService.get<string>('FIREBASE_CREDENTIALS_FILE');
-      const projectId = this.configService.get<string>('FIREBASE_PROJECT_ID');
-      
-      if (!credentialsFile) {
-        throw new Error('FIREBASE_CREDENTIALS_FILE is not defined in environment variables');
-      }
+    onModuleInit() {
+        try {
+            const projectId =
+                this.configService.get<string>('FIREBASE_PROJECT_ID');
 
-      const serviceAccountPath = path.join(process.cwd(), credentialsFile);
-      
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccountPath),
-        projectId: projectId || undefined,
-      });
+            const clientEmail =
+                this.configService.get<string>('FIREBASE_CLIENT_EMAIL');
 
-      console.log('✅ Firebase initialized successfully');
-    } catch (error) {
-      console.error('❌ Firebase initialization failed:', error.message);
-      throw error;
+            const privateKey =
+                this.configService
+                    .get<string>('FIREBASE_PRIVATE_KEY')
+                    ?.replace(/\\n/g, '\n');
+
+
+            if (!projectId || !clientEmail || !privateKey) {
+                throw new Error(
+                    'Missing Firebase Admin environment variables. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY',
+                );
+            }
+
+
+            // Prevent duplicate initialization
+            if (admin.apps.length === 0) {
+                admin.initializeApp({
+                    credential: admin.credential.cert({
+                        projectId,
+                        clientEmail,
+                        privateKey,
+                    }),
+                });
+            }
+
+
+            console.log('✅ Firebase initialized successfully');
+
+        } catch (error) {
+            console.error(
+                '❌ Firebase initialization failed:',
+                error.message,
+            );
+
+            throw error;
+        }
     }
-  }
 
-  getAdmin() {
-    return admin;
-  }
+
+    getAdmin() {
+        return admin;
+    }
 }
+
+
 
 @Injectable()
 export class FirebaseService {
-  constructor(private firebaseConfig: FirebaseConfig) {}
+    constructor(
+        private firebaseConfig: FirebaseConfig,
+    ) {}
 
-  async verifyIdToken(idToken: string) {
-    return await this.firebaseConfig.getAdmin().auth().verifyIdToken(idToken);
-  }
 
-  async getUser(uid: string) {
-    return await this.firebaseConfig.getAdmin().auth().getUser(uid);
-  }
+    async verifyIdToken(idToken: string) {
+        return await this.firebaseConfig
+            .getAdmin()
+            .auth()
+            .verifyIdToken(idToken);
+    }
 
-  async createUser(uid: string, email: string, displayName?: string) {
-    return await this.firebaseConfig.getAdmin().auth().createUser({
-      uid,
-      email,
-      displayName: displayName || undefined,
-    });
-  }
+
+    async getUser(uid: string) {
+        return await this.firebaseConfig
+            .getAdmin()
+            .auth()
+            .getUser(uid);
+    }
+
+
+    async createUser(
+        uid: string,
+        email: string,
+        displayName?: string,
+    ) {
+        return await this.firebaseConfig
+            .getAdmin()
+            .auth()
+            .createUser({
+                uid,
+                email,
+                displayName: displayName || undefined,
+            });
+    }
 }
