@@ -15,12 +15,15 @@ async function bootstrap() {
   app.use(helmet());
 
   // CORS
-  app.use(
-    cors({
-      origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-      credentials: true,
-    })
-  );
+    app.use(
+        cors({
+            origin: [
+                process.env.CORS_ORIGIN || "http://localhost:3000",
+                "https://activity-monitor-zeta.vercel.app",
+            ],
+            credentials: true,
+        })
+    );
 
   // Rate Limiting
   const limiter = rateLimit({
