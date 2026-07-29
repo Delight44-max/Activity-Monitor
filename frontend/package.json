@@ -1,0 +1,41 @@
+{
+  "name": "activity-monitor-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "export": "next export"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.1.1",
+    "@hookform/resolvers": "^5.5.7",
+    "axios": "^1.6.5",
+    "firebase": "^10.7.1",
+    "framer-motion": "^11.0.3",
+    "js-cookie": "^3.0.8",
+    "lucide-react": "^0.312.0",
+    "next": "^15.1.0",
+    "next-themes": "^0.2.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.49.3",
+    "react-hot-toast": "^2.4.1",
+    "socket.io-client": "^4.7.4",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/js-cookie": "^3.0.6",
+    "@types/node": "^20.10.6",
+    "@types/react": "^18.2.47",
+    "@types/react-dom": "^18.2.18",
+    "autoprefixer": "^10.4.17",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.1.0",
+    "postcss": "^8.4.33",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3"
+  }
+}
