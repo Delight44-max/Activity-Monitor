@@ -9,52 +9,58 @@ import rateLimit from 'express-rate-limit';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+    const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // Security
-  app.use(helmet());
+    // Trust Railway proxy
+    app.set('trust proxy', 1);
 
-  // CORS
+    // Security
+    app.use(helmet());
+
+    // CORS
     app.use(
         cors({
             origin: [
-                process.env.CORS_ORIGIN || "http://localhost:3000",
-                "https://activity-monitor-zeta.vercel.app",
+                process.env.CORS_ORIGIN || 'http://localhost:3000',
+                'https://activity-monitor-zeta.vercel.app',
             ],
             credentials: true,
-        })
+        }),
     );
 
-  // Rate Limiting
-  const limiter = rateLimit({
-    windowMs: parseInt(process.env.THROTTLE_TTL) || 60000,
-    max: parseInt(process.env.THROTTLE_LIMIT) || 10,
-    message: 'Too many requests, please try again later.',
-  });
-  app.use('/api', limiter);
+    // Rate Limiting
+    const limiter = rateLimit({
+        windowMs: parseInt(process.env.THROTTLE_TTL || '60000'),
+        max: parseInt(process.env.THROTTLE_LIMIT || '10'),
+        message: 'Too many requests, please try again later.',
+    });
 
-  // Global prefix
-  app.setGlobalPrefix('api');
+    app.use('/api', limiter);
 
-  // Validation
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-      forbidNonWhitelisted: true,
-    })
-  );
+    // Global prefix
+    app.setGlobalPrefix('api');
 
-  // Global Exception Filter
-  app.useGlobalFilters(new HttpExceptionFilter());
+    // Validation
+    app.useGlobalPipes(
+        new ValidationPipe({
+            whitelist: true,
+            transform: true,
+            forbidNonWhitelisted: true,
+        }),
+    );
 
-  // Serve static files (if needed)
-  app.useStaticAssets(join(__dirname, '..', 'public'));
+    // Global Exception Filter
+    app.useGlobalFilters(new HttpExceptionFilter());
 
-  const port = process.env.PORT || 3001;
-  await app.listen(port);
-  console.log(`🚀 Backend server running on port ${port}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+    // Serve static files (if needed)
+    app.useStaticAssets(join(__dirname, '..', 'public'));
+
+    const port = process.env.PORT || 3001;
+
+    await app.listen(port);
+
+    console.log(`🚀 Backend server running on port ${port}`);
+    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
 }
 
 bootstrap();
