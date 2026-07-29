@@ -23,6 +23,8 @@ async function bootstrap() {
             origin: [
                 process.env.CORS_ORIGIN || 'http://localhost:3000',
                 'https://activity-monitor-zeta.vercel.app',
+                'https://activity-monitor-git-main-delight44-maxs-projects.vercel.app',
+                'https://activity-monitor-ovtm158vx-delight44-maxs-projects.vercel.app',
             ],
             credentials: true,
         }),
